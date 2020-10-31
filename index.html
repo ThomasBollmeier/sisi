@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head lang="en">
+        <meta charset="utf-8">
+        <title>SiSi - A NoNoGram solver</title>
+    </head>
+    <body>
+        <h1>SiSi - A NoNoGram solver</h1>
+        <script src="scripts/sisi.js"></script>
+        <script>
+
+            function printRow(cellStates) {
+                let row = '';
+                for (let cs of cellStates) {
+                    switch(cs) {
+                        case CellState.UNKNOWN:
+                            row += '_ ';
+                            break;
+                        case CellState.EMPTY:
+                            row += 'O ';
+                            break;
+                        case CellState.FILLED:
+                            row += 'X ';
+                            break;
+                    }
+                }
+                console.log(row);
+            }
+            
+            const size = 10;
+            const nono = new Nonogram(size, size);
+            const blocks = [3, 6];
+
+            const cellStates = nono.determineCellStates(size, blocks);
+            printRow(cellStates);
+
+        </script>
+    </body>
+</html>
