@@ -7,18 +7,63 @@ const CellState = {
 class Nonogram {
 
     constructor(numRows, numCols) {
-        this.numRows = numRows;
-        this.numCols = numCols;
+        
+        this._numRows = numRows;
+        this._numCols = numCols;
+
+        this._cells = [];
+        for (let r = 0; r < this._numRows; r++) {
+            const row = [];
+            for (let c = 0; c < this._numCols; c++) {
+                row.push(CellState.UNKNOWN);
+            }
+            this._cells.push(row);
+        }
+
+        this._rowBlocks = [];
+        for (let r = 0; r < this._numRows; r++) {
+            this._rowBlocks.push([]);
+        }
+
+        this._colBlocks = [];
+        for (let c = 0; c < this._numCols; c++) {
+            this._colBlocks.push([]);
+        }
+
+    }
+
+    getCellStatesOfRow(row) {
+        return this._cells[row];
+    }
+
+    getCellStatesOfColumn(col) {
+        return this._cells.map(row => row[col]);
+    }
+
+    _isValid(size, placement, expectedStates) {
+
+        const actualStates = this._determineCellStates(size, [placement]);
+
+        for (let i = 0; i < size; i++) {
+            if (expectedStates[i] != CellState.UNKNOWN &&
+                expectedStates[i] != actualStates[i]) {
+                return false;
+            }
+        }
+
+        return true;
     }
     
-    determineCellStates(size, blocks) {
+    determineCellStates(size, blocks, expectedStates) {
+        return this._determineCellStates(size, this.findPlacements(size, blocks, expectedStates));
+    }
+
+    _determineCellStates(size, placements) {
 
         const counters = [];
         for (let i = 0; i < size; ++i) {
             counters.push(0);
         }
-
-        const placements = this.findPlacements(size, blocks);
 
         placements.forEach( p => {
             p.forEach((offset, blockIdx) => {
@@ -45,7 +90,7 @@ class Nonogram {
         return result;
     }
     
-    findPlacements(size, blocks) {
+    findPlacements(size, blocks, expectedStates) {
         
         let result = [];
 
@@ -53,15 +98,17 @@ class Nonogram {
             return result;
         }
 
-        this._findPlacements(size, blocks, [], result);
+        this._findPlacements(size, blocks, expectedStates, [], result);
 
         return result;
     }
     
-    _findPlacements(size, blocks, offsets, result) {
+    _findPlacements(size, blocks, expectedStates, offsets, result) {
     
         if (offsets.length === blocks.length) {
-            result.push(offsets);
+            if (this._isValid(size, offsets, expectedStates)) {
+                result.push(offsets);
+            }
             return;
         }
 
@@ -81,7 +128,7 @@ class Nonogram {
         const endOffset = size - remainingLen;
 
         for (let offset=startOffset; offset <= endOffset; offset++) {
-            this._findPlacements(size, blocks, offsets.concat([offset]), result);
+            this._findPlacements(size, blocks, expectedStates, offsets.concat([offset]), result);
         }
 
     }

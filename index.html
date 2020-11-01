@@ -29,9 +29,12 @@
             
             const size = 10;
             const nono = new Nonogram(size, size);
-            const blocks = [3, 6];
+            const blocks = [3, 3];
+            const expectedStates = nono.getCellStatesOfRow(0);
+            expectedStates[3] = CellState.EMPTY;
+            expectedStates[8] = CellState.FILLED;
 
-            const cellStates = nono.determineCellStates(size, blocks);
+            const cellStates = nono.determineCellStates(size, blocks, expectedStates);
             printRow(cellStates);
 
         </script>
