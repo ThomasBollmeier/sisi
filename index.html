@@ -9,33 +9,70 @@
         <script src="scripts/sisi.js"></script>
         <script>
 
-            function printRow(cellStates) {
-                let row = '';
-                for (let cs of cellStates) {
-                    switch(cs) {
-                        case CellState.UNKNOWN:
-                            row += '_ ';
-                            break;
-                        case CellState.EMPTY:
-                            row += 'O ';
-                            break;
-                        case CellState.FILLED:
-                            row += 'X ';
-                            break;
+            function printNonogram(nono) {
+                const nRows = nono.getNumRows();
+                const nCols = nono.getNumColumns();
+                let data = '';
+                for (let r = 0; r < nRows; r++) {
+                    for (let c = 0; c < nCols; c++) {
+                        switch(nono.getCellState(r, c)) {
+                            case CellState.UNKNOWN:
+                                data += '? ';
+                                break;
+                            case CellState.EMPTY:
+                                data += '- ';
+                                break;
+                            case CellState.FILLED:
+                                data += '# ';
+                                break;
+                        }    
                     }
+                    data += '\n';
                 }
-                console.log(row);
+                console.log(data);
             }
             
-            const size = 10;
-            const nono = new Nonogram(size, size);
-            const blocks = [3, 3];
-            const expectedStates = nono.getCellStatesOfRow(0);
-            expectedStates[3] = CellState.EMPTY;
-            expectedStates[8] = CellState.FILLED;
+            const nono = new Nonogram(10, 20);
 
-            const cellStates = nono.determineCellStates(size, blocks, expectedStates);
-            printRow(cellStates);
+            nono.setRowBlocks(0, [6]);
+            nono.setRowBlocks(1, [4, 2, 6]);
+            nono.setRowBlocks(2, [6, 1, 6]);
+            nono.setRowBlocks(3, [2, 3, 5]);
+            nono.setRowBlocks(4, [1, 11, 1]);
+            nono.setRowBlocks(5, [3, 2, 2, 1]);
+            nono.setRowBlocks(6, [1, 2, 2, 1, 1]);
+            nono.setRowBlocks(7, [1, 1, 3, 2]);
+            nono.setRowBlocks(8, [2, 2, 4]);
+            nono.setRowBlocks(9, [5]);
+
+            nono.setColumnBlocks(0, [3]);
+            nono.setColumnBlocks(1, [3]);
+            nono.setColumnBlocks(2, [2]);
+            nono.setColumnBlocks(3, [2]);
+            nono.setColumnBlocks(4, [3]);
+            nono.setColumnBlocks(5, [3]);
+            nono.setColumnBlocks(6, [3]);
+            nono.setColumnBlocks(7, [2, 5]);
+            nono.setColumnBlocks(8, [2, 2, 2]);
+            nono.setColumnBlocks(9, [1, 1, 2, 1]);
+            nono.setColumnBlocks(10, [1, 1, 1, 1]);
+            nono.setColumnBlocks(11, [2, 1, 1]);
+            nono.setColumnBlocks(12, [2, 1, 2]);
+            nono.setColumnBlocks(13, [3, 5]);
+            nono.setColumnBlocks(14, [2, 4]);
+            nono.setColumnBlocks(15, [4, 2]);
+            nono.setColumnBlocks(16, [3, 2, 1]);
+            nono.setColumnBlocks(17, [2, 1, 1]);
+            nono.setColumnBlocks(18, [2, 2]);
+            nono.setColumnBlocks(19, [5]);
+
+            printNonogram(nono);
+
+            console.log('\n\n');
+
+            nono.solve();
+
+            printNonogram(nono);
 
         </script>
     </body>

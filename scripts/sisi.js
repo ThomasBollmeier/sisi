@@ -4,6 +4,11 @@ const CellState = {
     FILLED: 3
 };
 
+const ActionType = {
+    ANALYZE_ROW: 1,
+    ANALYZE_COLUMN: 2
+};
+
 class Nonogram {
 
     constructor(numRows, numCols) {
@@ -32,17 +37,136 @@ class Nonogram {
 
     }
 
-    getCellStatesOfRow(row) {
+    getNumRows() {
+        return this._numRows;
+    }
+
+    getNumColumns() {
+        return this._numCols;
+    }
+
+    getCellState(row, col) {
+        return this._cells[row][col];
+    }
+
+    setRowBlocks(row, blocks) {
+        this._rowBlocks[row] = blocks;
+    }
+
+    setColumnBlocks(col, blocks) {
+        this._colBlocks[col] = blocks;
+    }
+
+    solve() {
+
+        const actions = [];
+        
+        for (let row = 0; row < this._numRows; row++) {
+            actions.push(this._createRowAction(row));
+        }
+
+        for (let col = 0; col < this._numCols; col++) {
+            actions.push(this._createColumnAction(col));
+        }
+
+        while (actions.length > 0) {
+            const action = actions.shift();
+            action.execute(actions);
+        }
+
+    }
+
+    _createRowAction(row) {
+        const nonogram = this;
+        return {
+            actionType: ActionType.ANALYZE_ROW,
+            row,
+            execute: (actions) => {
+                nonogram._analyzeRow(row, actions);
+            }
+        };
+    }
+
+    _createColumnAction(col) {
+        const nonogram = this;
+        return {
+            actionType: ActionType.ANALYZE_COLUMN,
+            col,
+            execute: (actions) => {
+                nonogram._analyzeColumn(col, actions);
+            }
+        };
+    }
+
+    _analyzeRow(row, actions) {
+        
+        const stateConstraints = this._getCellStatesOfRow(row);
+        const states = this.determineCellStates(this._numCols, this._rowBlocks[row], stateConstraints);
+        
+        for (let col = 0; col < this._numCols; col++) {
+            if (states[col] === CellState.UNKNOWN) {
+                continue;
+            }
+            if (this._cells[row][col] === CellState.UNKNOWN) {
+                this._cells[row][col] = states[col];
+                let found = false;
+                for (let action of actions) {
+                    if (action.actionType === ActionType.ANALYZE_COLUMN && action.col === col) {
+                        found = true;
+                        break;
+                    } 
+                }
+                if (!found) {
+                    actions.push(this._createColumnAction(col));
+                }
+            } else if (this._cells[row][col] !== states[col]) {
+                return false; // Error!
+            }
+        }
+
+        return true;
+    }
+
+    _analyzeColumn(col, actions) {
+
+        const stateConstraints = this._getCellStatesOfColumn(col);
+        const states = this.determineCellStates(this._numRows, this._colBlocks[col], stateConstraints);
+        
+        for (let row = 0; row < this._numRows; row++) {
+            if (states[row] === CellState.UNKNOWN) {
+                continue;
+            }
+            if (this._cells[row][col] === CellState.UNKNOWN) {
+                this._cells[row][col] = states[row];
+                let found = false;
+                for (let action of actions) {
+                    if (action.actionType === ActionType.ANALYZE_ROW && action.row === row) {
+                        found = true;
+                        break;
+                    } 
+                }
+                if (!found) {
+                    actions.push(this._createRowAction(row));
+                }
+            } else if (this._cells[row][col] !== states[row]) {
+                return false; // Error!
+            }
+        }
+
+        return true;
+    }
+
+    _getCellStatesOfRow(row) {
         return this._cells[row];
     }
 
-    getCellStatesOfColumn(col) {
+    _getCellStatesOfColumn(col) {
         return this._cells.map(row => row[col]);
     }
 
-    _isValid(size, placement, expectedStates) {
+    _isValid(size, blocks, placement, expectedStates) {
 
-        const actualStates = this._determineCellStates(size, [placement]);
+        const actualStates = this._determineCellStates(size, blocks, [placement]);
 
         for (let i = 0; i < size; i++) {
             if (expectedStates[i] != CellState.UNKNOWN &&
@@ -55,10 +179,10 @@ class Nonogram {
     }
     
     determineCellStates(size, blocks, expectedStates) {
-        return this._determineCellStates(size, this.findPlacements(size, blocks, expectedStates));
+        return this._determineCellStates(size, blocks, this.findPlacements(size, blocks, expectedStates));
     }
 
-    _determineCellStates(size, placements) {
+    _determineCellStates(size, blocks, placements) {
 
         const counters = [];
         for (let i = 0; i < size; ++i) {
@@ -106,7 +230,7 @@ class Nonogram {
     _findPlacements(size, blocks, expectedStates, offsets, result) {
     
         if (offsets.length === blocks.length) {
-            if (this._isValid(size, offsets, expectedStates)) {
+            if (this._isValid(size, blocks, offsets, expectedStates)) {
                 result.push(offsets);
             }
             return;
