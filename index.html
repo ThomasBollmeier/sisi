@@ -16,13 +16,13 @@
                 for (let r = 0; r < nRows; r++) {
                     for (let c = 0; c < nCols; c++) {
                         switch(nono.getCellState(r, c)) {
-                            case CellState.UNKNOWN:
+                            case sisi.CellState.UNKNOWN:
                                 data += '? ';
                                 break;
-                            case CellState.EMPTY:
+                            case sisi.CellState.EMPTY:
                                 data += '- ';
                                 break;
-                            case CellState.FILLED:
+                            case sisi.CellState.FILLED:
                                 data += '# ';
                                 break;
                         }    
@@ -31,40 +31,45 @@
                 }
                 console.log(data);
             }
-            
-            const nono = new Nonogram(10, 20);
 
-            nono.setRowBlocks(0, [6]);
-            nono.setRowBlocks(1, [4, 2, 6]);
-            nono.setRowBlocks(2, [6, 1, 6]);
-            nono.setRowBlocks(3, [2, 3, 5]);
-            nono.setRowBlocks(4, [1, 11, 1]);
-            nono.setRowBlocks(5, [3, 2, 2, 1]);
-            nono.setRowBlocks(6, [1, 2, 2, 1, 1]);
-            nono.setRowBlocks(7, [1, 1, 3, 2]);
-            nono.setRowBlocks(8, [2, 2, 4]);
-            nono.setRowBlocks(9, [5]);
+            const nono = sisi.createNonogram(`
+                [size]
+                10 20
 
-            nono.setColumnBlocks(0, [3]);
-            nono.setColumnBlocks(1, [3]);
-            nono.setColumnBlocks(2, [2]);
-            nono.setColumnBlocks(3, [2]);
-            nono.setColumnBlocks(4, [3]);
-            nono.setColumnBlocks(5, [3]);
-            nono.setColumnBlocks(6, [3]);
-            nono.setColumnBlocks(7, [2, 5]);
-            nono.setColumnBlocks(8, [2, 2, 2]);
-            nono.setColumnBlocks(9, [1, 1, 2, 1]);
-            nono.setColumnBlocks(10, [1, 1, 1, 1]);
-            nono.setColumnBlocks(11, [2, 1, 1]);
-            nono.setColumnBlocks(12, [2, 1, 2]);
-            nono.setColumnBlocks(13, [3, 5]);
-            nono.setColumnBlocks(14, [2, 4]);
-            nono.setColumnBlocks(15, [4, 2]);
-            nono.setColumnBlocks(16, [3, 2, 1]);
-            nono.setColumnBlocks(17, [2, 1, 1]);
-            nono.setColumnBlocks(18, [2, 2]);
-            nono.setColumnBlocks(19, [5]);
+                [rows]
+                6
+                4 2 6
+                6 1 6
+                2 3 5
+                1 11 1
+                3 2 2 1
+                1 2 2 1 1
+                1 1 3 2
+                2 2 4
+                5
+
+                [columns]
+                3
+                3
+                2
+                2
+                3
+                3
+                3
+                2 5
+                2 2 2
+                1 1 2 1
+                1 1 1 1
+                2 1 1
+                2 1 2
+                3 5
+                2 4
+                4 2
+                3 2 1
+                2 1 1
+                2 2
+                5
+            `);
 
             printNonogram(nono);
 
