@@ -1,8 +1,10 @@
 import * as Sisi from './sisi.js';
 
-function printNonogram(nono) {
+function displayNonogram(nono) {
+
     const nRows = nono.getNumRows();
     const nCols = nono.getNumColumns();
+    
     let data = '';
     for (let r = 0; r < nRows; r++) {
         for (let c = 0; c < nCols; c++) {
@@ -18,9 +20,11 @@ function printNonogram(nono) {
                     break;
             }    
         }
-        data += '\n';
+        data += '<br>';
     }
-    console.log(data);
+    
+    const $output = document.querySelector('#output');
+    $output.innerHTML = data;
 }
 
 const nono = new Sisi.NonogramBuilder()
@@ -63,11 +67,7 @@ const nono = new Sisi.NonogramBuilder()
         5`)
     .build();
 
-printNonogram(nono);
-
-console.log('\n\n');
-
 nono.solve();
 
-printNonogram(nono);
+displayNonogram(nono);
 

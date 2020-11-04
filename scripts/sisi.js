@@ -108,31 +108,24 @@ class NonogramBuilder {
 
     build() {
 
-        const result = new Nonogram(this._numRows, this._numCols);
+        return new Nonogram(
+            this._numRows, 
+            this._numCols,
+            this._rowBlocks,
+            this._colBlocks);
 
-        let i = 0;
-        for (let rowBlock of this._rowBlocks) {
-            result.setRowBlocks(i, rowBlock);
-            i++;
-        }
-
-        i = 0;
-        for (let colBlock of this._colBlocks) {
-            result.setColumnBlocks(i, colBlock);
-            i++;
-        }
-
-        return result;
     }
 
 }
 
 class Nonogram {
 
-    constructor(numRows, numCols) {
+    constructor(numRows, numCols, rowBlocks, colBlocks) {
         
         this._numRows = numRows;
         this._numCols = numCols;
+        this._rowBlocks = rowBlocks;
+        this._colBlocks = colBlocks;
 
         this._cells = [];
         for (let r = 0; r < this._numRows; r++) {
@@ -141,16 +134,6 @@ class Nonogram {
                 row.push(CellState.UNKNOWN);
             }
             this._cells.push(row);
-        }
-
-        this._rowBlocks = [];
-        for (let r = 0; r < this._numRows; r++) {
-            this._rowBlocks.push([]);
-        }
-
-        this._colBlocks = [];
-        for (let c = 0; c < this._numCols; c++) {
-            this._colBlocks.push([]);
         }
 
     }
@@ -165,14 +148,6 @@ class Nonogram {
 
     getCellState(row, col) {
         return this._cells[row][col];
-    }
-
-    setRowBlocks(row, blocks) {
-        this._rowBlocks[row] = blocks;
-    }
-
-    setColumnBlocks(col, blocks) {
-        this._colBlocks[col] = blocks;
     }
 
     solve() {
