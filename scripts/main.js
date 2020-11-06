@@ -27,47 +27,30 @@ function displayNonogram(nono) {
     $output.innerHTML = data;
 }
 
-const nono = new Sisi.NonogramBuilder()
-    .setFromConfig(`
-        [size]
-        10 20
+function uploadNonogram(nonoFile) {
 
-        [rows]
-        6
-        4 2 6
-        6 1 6
-        2 3 5
-        1 11 1
-        3 2 2 1
-        1 2 2 1 1
-        1 1 3 2
-        2 2 4
-        5
+    return nonoFile.text().then(content => {
+        return new Sisi.NonogramBuilder().setFromConfig(content).build();
+    });
 
-        [columns]
-        3
-        3
-        2
-        2
-        3
-        3
-        3
-        2 5
-        2 2 2
-        1 1 2 1
-        1 1 1 1
-        2 1 1
-        2 1 2
-        3 5
-        2 4
-        4 2
-        3 2 1
-        2 1 1
-        2 2
-        5`)
-    .build();
+}
 
-nono.solve();
+document.addEventListener('DOMContentLoaded', () => {
 
-displayNonogram(nono);
+    const $file = document.querySelector('#file');
+    const $upload = document.querySelector('#upload');
 
+    $upload.addEventListener('click', () => {
+
+        if ($file.files.length > 0) {
+
+            uploadNonogram($file.files[0]).then(nono => {
+                nono.solve();
+                displayNonogram(nono);
+            });
+
+        }
+
+    });
+
+});
