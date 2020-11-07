@@ -151,6 +151,27 @@ class Nonogram {
     }
 
     solve() {
+        
+        this._solveWithOverlapAnalysis();
+
+        if (!this._isSolved()) {
+            this._solveWithBacktracking();
+        }
+
+    }
+
+    _isSolved() {
+        for (let r = 0; r < this._numRows; r++) {
+            for (let c = 0; c < this._numCols; c++) {
+                if (this._cells[r][c] === CellState.UNKNOWN) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    _solveWithOverlapAnalysis() {
 
         const actions = [];
         
@@ -167,6 +188,10 @@ class Nonogram {
             action.execute(actions);
         }
 
+    }
+
+    _solveWithBacktracking() {
+        // TODO
     }
 
     _createRowAction(row) {
