@@ -127,14 +127,7 @@ class Nonogram {
         this._rowBlocks = rowBlocks;
         this._colBlocks = colBlocks;
 
-        this._cells = [];
-        for (let r = 0; r < this._numRows; r++) {
-            const row = [];
-            for (let c = 0; c < this._numCols; c++) {
-                row.push(CellState.UNKNOWN);
-            }
-            this._cells.push(row);
-        }
+        this._cells = this._createCells(this._numRows, this._numCols);
 
     }
 
@@ -191,7 +184,168 @@ class Nonogram {
     }
 
     _solveWithBacktracking() {
-        // TODO
+
+        const cells = this._createCells(this._numRows, this._numCols);
+        
+        const allPlacements = [];
+
+        for (let row = 0; row < this._numRows; row++) {
+            const expectedStates = this._getCellStatesOfRow(row);
+            const placements = this.findPlacements(this._numCols, this._rowBlocks[row], expectedStates);
+            allPlacements.push(placements);
+        }
+
+        const placed = [];
+        let nextRow = 0;
+        let nextIdx = 0;
+        
+        while (placed.length  < this._numRows) {
+
+            const nextPlacements = allPlacements[nextRow];
+
+            if (nextPlacements.length === 0) {
+                this._setRowEmpty(nextRow, cells);
+                placed.unshift(-1);
+                nextRow++;
+                nextIdx = 0;
+                continue;
+            }
+
+            if (nextIdx < nextPlacements.length) {
+                
+                const placement = nextPlacements[nextIdx];
+                
+                this._placeBlocks(nextRow, this._rowBlocks[nextRow], placement, cells);
+                
+                if (this._isConsistent(cells, this._colBlocks)) {
+                    placed.unshift(nextIdx);
+                    nextRow++;
+                    nextIdx = 0;
+                } else {
+                    this._setRowEmpty(nextRow, cells);
+                    nextIdx++;
+                }
+
+            } else {
+
+                if (placed.length > 0) {
+
+                    nextIdx = placed.unshift() + 1;
+                    nextRow = placed.length;
+
+                } else {
+                    break; // error
+                }
+
+            }
+
+        }
+
+        if (placed.length === this._numRows) {
+            this._cells = cells;
+        } 
+
+    }
+
+    _isConsistent(cells, colBlocks) {
+
+        const nCols = cells[0].length;
+
+        for (let col = 0; col < nCols; col++) {
+
+            const columnCells = cells.map(row => row[col]);
+
+            const actualBlocks = this._getBlocks(columnCells);
+            const expectedBlocks = colBlocks[col];
+
+            if (!this._blocksConsistent(actualBlocks, expectedBlocks)) {
+                return false;
+            }
+
+        }
+
+        return true;
+    }
+
+    _blocksConsistent(actual, expected) {
+
+        if (actual.length === 0) {
+            return true;
+        }
+
+        if (actual.length > expected.length) {
+            return false;
+        }
+
+        for (let i = 0; i < actual.length - 1; i++) {
+            if (actual[i] !== expected[i]) {
+                return false;
+            }
+        }
+
+        return actual[actual.length - 1] <= expected[actual.length - 1];
+    }
+
+    _getBlocks(cellLine) {
+
+        const result = [];
+        let size = 0;
+        
+        for (let cell of cellLine) {
+
+            if (cell !== CellState.FILLED) {
+                if (size > 0) {
+                    result.push(size)
+                    size = 0;
+                }
+            } else {
+                size++;
+            }
+
+        }
+
+        if (size > 0) {
+            result.push(size);
+        }
+
+        return result;
+
+    }
+
+    _setRowEmpty(row, cells) {
+        
+        for (let col = 0; col < cells[row].length; col++) {
+            cells[row][col] = CellState.EMPTY;
+        }
+
+    }
+
+    _placeBlocks(row, blocks, placement, cells) {
+        
+        this._setRowEmpty(row, cells);
+
+        placement.forEach((offset, idx) => {
+            const blockLen = blocks[idx];
+            for (let col = offset; col < offset + blockLen; col++) {
+                cells[row][col] = CellState.FILLED;
+            }
+        })
+
+    }
+
+    _createCells(numRows, numCols) {
+        
+        const result = [];
+
+        for (let row = 0; row < numRows; row++) {
+            const line = [];
+            for (let col = 0; col < numCols; col++) {
+                line.push(CellState.UNKNOWN);
+            }
+            result.push(line);
+        }
+
+        return result;
     }
 
     _createRowAction(row) {
